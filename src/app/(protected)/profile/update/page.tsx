@@ -34,10 +34,10 @@ export default function UpdateProfilePage() {
 		async function loadProfile() {
 			try {
 				const res = await apiClient.get("/api/users/me/");
-				if (mounted && res?.data?.success && res.data.data) {
+				if (mounted && res?.data?.success && res.data.user) {
 					reset({
-						full_name: res.data.data.full_name || "",
-						email: res.data.data.email || "",
+						full_name: res.data.user.full_name || "",
+						email: res.data.user.email || "",
 					});
 				}
 			} catch (err) {
@@ -55,7 +55,7 @@ export default function UpdateProfilePage() {
 	async function onSubmit(values: ProfileForm) {
 		setMessage(null);
 		try {
-			const res = await apiClient.patch("/api/profile/update/", values);
+			const res = await apiClient.patch("/api/users/me/", values);
 			if (res?.data?.success) {
 				setMessage("Profile updated successfully.");
 				router.push("/profile");

@@ -23,10 +23,10 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
             router.push("/login");
         }
 
-        if (mounted && isAuthenticated && !isProfileCreated) {
-            router.push("/profile/update");
-        }
-        console.log(user);
+        // if (mounted && isAuthenticated) {
+        //     router.push("/profile/update");
+        //     console.log("Profile not created");
+        // }
     }, [mounted, isAuthenticated, router]);
 
     if (!mounted) {

@@ -36,12 +36,10 @@
   --surface: #F0F7FF;
   /* --surface: #F2F2FF; */
   --card: #FFFFFF;
-  --background: var(--surface);
   --foreground: var(--primary-950);
 }
 
 body {
-  background: var(--background);
   color: var(--foreground);
   font-family: var(--font-outfit), Arial, Helvetica, sans-serif;
 }
@@ -56,12 +54,11 @@ body {
   font-weight: 600;
   font-size: 0.95rem;
   transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
-  cursor: pointer;
   text-decoration: none;
   border: 1px solid transparent;
 }
 
-.btn:hover {
+.btn:not(:disabled):hover {
   transform: translateY(-1px);
 }
 
@@ -71,7 +68,7 @@ body {
   box-shadow: 0 10px 20px rgba(45, 166, 96, 0.12);
 }
 
-.btn-primary:hover {
+.btn-primary.btn:not(:disabled):hover {
   background-color: var(--primary-700);
 }
 

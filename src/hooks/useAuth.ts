@@ -28,8 +28,9 @@ export function useAuth() {
             try {
                 const response = await apiClient.get("/api/users/me/");
                 const data = response.data;
-                if (data?.success && data?.data) {
-                    const fullName = data.data.full_name as string | undefined;
+                if (data?.success && data?.user) {
+                    const fullName = data.user.full_name as string | undefined;
+                    console.log(fullName);
                     if (mounted) setIsProfileCreated(Boolean(fullName && fullName.trim() !== ""));
                 } else {
                     if (mounted) setIsProfileCreated(false);
@@ -41,7 +42,9 @@ export function useAuth() {
             }
         }
 
-        checkProfile();
+        // checkProfile();
+
+        console.log("profile" + isProfileCreated);
 
         return () => {
             mounted = false;

@@ -36,7 +36,7 @@ export const verifyOtpThunk = createAsyncThunk(
 
             // Set cookies
             setTokens(data.tokens.access, data.tokens.refresh);
-            return { user: { isNewUser: data.user_created } };
+            return { user: { userName: data.user.full_name, phone: data.user.phone } };
         } catch (error: any) {
             return rejectWithValue(error.response?.data?.detail || "Invalid OTP or network error");
         }
@@ -108,9 +108,7 @@ const authSlice = createSlice({
             state.isLoading = false;
             state.isLoggedIn = true;
             state.user = action.payload.user;
-            if (action.payload.user.isNewUser) {
-                state.step = "profile";
-            }
+        
         });
         builder.addCase(verifyOtpThunk.rejected, (state, action) => {
             state.isLoading = false;

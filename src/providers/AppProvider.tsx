@@ -1,5 +1,5 @@
 import { ReduxProvider } from "./StoreProvider";
-
+import { Toaster } from "react-hot-toast";
 
 export default function AppProvider({
     children,
@@ -8,7 +8,8 @@ export default function AppProvider({
 }) {
     return (
         <ReduxProvider>
-                {children}
+            {children}
+            <Toaster position="bottom-center" />
         </ReduxProvider>
     );
 }
