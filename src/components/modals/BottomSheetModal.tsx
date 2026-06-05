@@ -9,9 +9,10 @@ interface BottomSheetModalProps {
     onClose: () => void;
     children: React.ReactNode;
     preventCloseOnOverlayClick?: boolean;
+    bg: string;
 }
 
-export default function BottomSheetModal({ isOpen, onClose, children, preventCloseOnOverlayClick }: BottomSheetModalProps) {
+export default function BottomSheetModal({ isOpen, onClose, children, preventCloseOnOverlayClick, bg }: BottomSheetModalProps) {
     // Handle ESC key press
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -27,28 +28,27 @@ export default function BottomSheetModal({ isOpen, onClose, children, preventClo
     }, [isOpen, onClose]);
 
     // Handle Mobile Back Button integration
-    useEffect(() => {
-        const handlePopState = () => {
-            if (isOpen) {
-                onClose();
-            }
-        };
+    // useEffect(() => {
+    //     const handlePopState = () => {
+    //         if (isOpen) {
+    //             onClose();
+    //         }
+    //     };
 
-        if (isOpen) {
-            // Push a state to the history stack so the back button has something to pop
-            window.history.pushState({ modalOpen: true }, "");
-            window.addEventListener("popstate", handlePopState);
-            console.log(window.history.state);
-        }
+    //     if (isOpen) {
+    //         // Push a state to the history stack so the back button has something to pop
+    //         window.history.pushState({ modalOpen: true }, "");
+    //         window.addEventListener("popstate", handlePopState);
+    //     }
 
-        return () => {
-            window.removeEventListener("popstate", handlePopState);
-            // Clean up the history state if the modal is closed manually (not via back button)
-            if (isOpen && window.history.state?.modalOpen) {
-                window.history.back();
-            }
-        };
-    }, [isOpen, onClose]);
+    //     return () => {
+    //         window.removeEventListener("popstate", handlePopState);
+    //         // Clean up the history state if the modal is closed manually (not via back button)
+    //         if (isOpen && window.history.state?.modalOpen) {
+    //             window.history.back();
+    //         }
+    //     };
+    // }, [isOpen, onClose]);
 
     // Animation variants for that premium spring feel
     const modalVariants: Variants = {
@@ -93,7 +93,7 @@ export default function BottomSheetModal({ isOpen, onClose, children, preventClo
                             animate="visible"
                             exit="exit"
                             // pointer-events-auto is crucial here because the wrapper is pointer-events-none
-                            className="relative w-full md:max-w-lg bg-white rounded-t-4xl md:rounded-4xl shadow-2xl pointer-events-auto flex flex-col max-h-[90vh]"
+                            className={`relative w-full md:max-w-lg ${bg} rounded-t-4xl md:rounded-4xl shadow-2xl pointer-events-auto flex flex-col max-h-[90vh]`}
                         >
 
                             {/* Floating Close Button (On Backdrop) */}
@@ -111,7 +111,7 @@ export default function BottomSheetModal({ isOpen, onClose, children, preventClo
                             </div>
 
                             {/* Scrollable Inner Content */}
-                            <div className="p-6 overflow-y-auto">
+                            <div className="overflow-y-auto">
                                 {children}
                             </div>
                         </motion.div>

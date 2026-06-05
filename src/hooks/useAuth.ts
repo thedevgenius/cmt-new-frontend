@@ -30,7 +30,6 @@ export function useAuth() {
                 const data = response.data;
                 if (data?.success && data?.user) {
                     const fullName = data.user.full_name as string | undefined;
-                    console.log(fullName);
                     if (mounted) setIsProfileCreated(Boolean(fullName && fullName.trim() !== ""));
                 } else {
                     if (mounted) setIsProfileCreated(false);
@@ -43,8 +42,6 @@ export function useAuth() {
         }
 
         // checkProfile();
-
-        console.log("profile" + isProfileCreated);
 
         return () => {
             mounted = false;
