@@ -11,6 +11,7 @@ import LocationButton from "@/components/location/LocationButton";
 export default function Home() {
 	const dispatch = useAppDispatch();
 	const { isAuthenticated } = useAuth();
+	const { currentLocation } = useAppSelector((state) => state.location);
 	return (
 		<div className="p-10">
 			<div className="flex gap-2">
@@ -24,7 +25,7 @@ export default function Home() {
 				
 				<AuthButton href="/profile">Profile</AuthButton>
 
-				<LocationButton>Select Location</LocationButton>
+				<LocationButton>{currentLocation?.display_name || "Select Location"}</LocationButton>
 			</div>
 		</div>
 	);

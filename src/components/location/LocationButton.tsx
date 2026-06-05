@@ -37,13 +37,6 @@ export default function LocationButton({
         setIsModalOpen(true);
     };
 
-    const handleLocationSelect = (location: Location) => {
-        // Call parent callback if provided
-        if (onLocationSelect) {
-            onLocationSelect(location);
-        }
-    };
-
     return (
         <>
             <button onClick={handleClick} className={className} {...rest}>
@@ -53,8 +46,6 @@ export default function LocationButton({
             <LocationModal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
-                onSelectLocation={handleLocationSelect}
-                locations={locations}
             />
         </>
     );

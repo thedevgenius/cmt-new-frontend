@@ -11,7 +11,7 @@ import {
 } from "redux-persist";
 import storage from "./storage";
 import authReducer from "./features/auth/authSlice"; // Or wherever your authSlice is
-// import locationReducer from "./features/location/locationSlice";
+import locationReducer from "./features/location/locationSlice"
 import { injectStore } from "@/lib/axios"; // <-- 1. Import injectStore
 
 const authPersistConfig = {
@@ -20,16 +20,15 @@ const authPersistConfig = {
     whitelist: ['user', 'isLoggedIn'],
 };
 
-// 2. Create a specific config for Location
 const locationPersistConfig = {
     key: 'location',
     storage,
-    whitelist: ['currentLocation', 'recentLocations'],
+    whitelist: ['currentLocation', 'recentSearches'], // Persist both current location and recents
 };
 
 const rootReducer = combineReducers({
     auth: persistReducer(authPersistConfig, authReducer),
-    // location: persistReducer(locationPersistConfig, locationReducer),
+    location: persistReducer(locationPersistConfig, locationReducer),
 });
 
 export const store = configureStore({

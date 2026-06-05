@@ -1,101 +1,184 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
-import { Search, MapPin } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Search, MapPin, Crosshair, Loader2, Clock } from "lucide-react";
 import BottomSheetModal from "@/components/modals/BottomSheetModal";
-
-interface Location {
-    id: string;
-    name: string;
-    city?: string;
-}
+import { useAppDispatch, useAppSelector } from "@/store/useStore";
+import {
+    fetchSuggestions,
+    fetchLocationByPlaceId,
+    fetchLocationByCoords,
+    clearSuggestions,
+    setError
+} from "@/store/features/location/locationSlice";
+import { Suggestion } from "@/types/location";
 
 interface LocationModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSelectLocation: (location: Location) => void;
-    locations?: Location[];
 }
-
-// Default locations if none provided
-const DEFAULT_LOCATIONS: Location[] = [
-    { id: "1", name: "Times Square", city: "New York" },
-    { id: "2", name: "Central Park", city: "New York" },
-    { id: "3", name: "Golden Gate Bridge", city: "San Francisco" },
-    { id: "4", name: "Statue of Liberty", city: "New York" },
-    { id: "5", name: "Hollywood Sign", city: "Los Angeles" },
-    { id: "6", name: "Space Needle", city: "Seattle" },
-    { id: "7", name: "The Bean", city: "Chicago" },
-    { id: "8", name: "Freedom Trail", city: "Boston" },
-];
 
 export default function LocationModal({
     isOpen,
     onClose,
-    onSelectLocation,
-    locations = DEFAULT_LOCATIONS,
 }: LocationModalProps) {
-    const [searchQuery, setSearchQuery] = useState("");
+    const dispatch = useAppDispatch();
 
-    // Filter locations based on search query
-    const filteredLocations = useMemo(() => {
-        if (!searchQuery.trim()) {
-            return locations;
+    // Pull state from Redux
+    const {
+        recentSearches,
+        suggestions,
+        isLoadingSuggestions,
+        isLocating,
+        error
+    } = useAppSelector((state) => state.location);
+
+    const [query, setQuery] = useState('');
+
+    // Clear local input when modal opens/closes
+    useEffect(() => {
+        if (!isOpen) {
+            setQuery('');
+            dispatch(clearSuggestions());
         }
-        return locations.filter((loc) =>
-            loc.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            loc.city?.toLowerCase().includes(searchQuery.toLowerCase())
-        );
-    }, [searchQuery, locations]);
+    }, [isOpen, dispatch]);
 
-    const handleSelectLocation = (location: Location) => {
-        onSelectLocation(location);
-        setSearchQuery("");
+    // Debounced API call for suggestions
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (query.trim().length > 2) {
+                dispatch(fetchSuggestions(query));
+            } else {
+                dispatch(clearSuggestions());
+            }
+        }, 400);
+
+        return () => clearTimeout(timer);
+    }, [query, dispatch]);
+
+    const handleSuggestionClick = async (suggestion: Suggestion) => {
+        // Dispatch the thunk to fetch coords and save to Redux
+        await dispatch(fetchLocationByPlaceId(suggestion));
+
+        // Clear input and close modal
+        setQuery('');
         onClose();
+    };
+
+    const handleCurrentLocationClick = () => {
+        if (!navigator.geolocation) {
+            dispatch(setError("Geolocation is not supported by your browser."));
+            return;
+        }
+
+        dispatch(setError(null));
+
+        navigator.geolocation.getCurrentPosition(
+            async (position) => {
+                await dispatch(fetchLocationByCoords({
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                }));
+                onClose(); // Close modal upon successful location fetch
+            },
+            () => {
+                dispatch(setError("Location permission denied. Please enable it in your browser."));
+            }
+        );
     };
 
     return (
         <BottomSheetModal isOpen={isOpen} onClose={onClose}>
-            <div className="flex flex-col gap-4">
-                {/* Header */}
-                <h2 className="text-lg font-semibold text-gray-900">Select Location</h2>
+            <div className="flex flex-col w-full h-[50vh] sm:h-[60vh] bg-white">
 
-                {/* Search Input */}
-                <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-                    <input
-                        type="text"
-                        placeholder="Search locations..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
+                {/* Search Bar Header */}
+                <div className="p-4 border-b shrink-0">
+                    <h2 className="text-lg font-semibold text-gray-800 mb-4">
+                        Select your location
+                    </h2>
+                    <div className="relative flex items-center w-full h-12 rounded-lg bg-gray-100 px-3 focus-within:ring-1 focus-within:ring-green-500">
+                        <Search className="w-5 h-5 text-gray-500" />
+                        <input
+                            type="text"
+                            className="w-full bg-transparent outline-none ml-3 text-sm text-gray-700"
+                            placeholder="Search for area, street name..."
+                            value={query}
+                            onChange={(e) => setQuery(e.target.value)}
+                            autoFocus
+                        />
+                        {isLoadingSuggestions && <Loader2 className="w-5 h-5 text-gray-400 animate-spin" />}
+                    </div>
+                    {error && <p className="mt-2 text-xs text-red-500">{error}</p>}
                 </div>
 
-                {/* Location List */}
-                <div className="max-h-96 overflow-y-auto">
-                    {filteredLocations.length > 0 ? (
-                        <div className="space-y-2">
-                            {filteredLocations.map((location) => (
+                {/* Scrollable Content Area */}
+                <div className="flex-1 overflow-y-auto p-4 space-y-6">
+
+                    {/* Current Location Button - Hidden if typing */}
+                    {query.length === 0 && (
+                        <button
+                            onClick={handleCurrentLocationClick}
+                            disabled={isLocating}
+                            className="flex items-center w-full text-left group disabled:opacity-70"
+                        >
+                            <div className="flex items-center justify-center w-10 h-10 rounded-full text-green-600 bg-green-50 group-hover:bg-green-100 transition-colors">
+                                {isLocating ? <Loader2 className="w-5 h-5 animate-spin" /> : <Crosshair className="w-5 h-5" />}
+                            </div>
+                            <div className="ml-4">
+                                <p className="text-green-600 font-medium text-sm">Use current location</p>
+                                <p className="text-gray-400 text-xs mt-0.5">Using GPS</p>
+                            </div>
+                        </button>
+                    )}
+
+                    {/* Suggestions / Results */}
+                    {query.length > 0 ? (
+                        <div className="space-y-4">
+                            {suggestions.map((suggestion) => (
                                 <button
-                                    key={location.id}
-                                    onClick={() => handleSelectLocation(location)}
-                                    className="w-full text-left px-4 py-3 hover:bg-gray-100 rounded-lg transition-colors flex items-start gap-3"
+                                    key={suggestion.place_id}
+                                    onClick={() => handleSuggestionClick(suggestion)}
+                                    className="flex items-start w-full text-left py-3 border-b border-gray-50 last:border-0 hover:bg-gray-50 rounded px-2 -mx-2 transition-colors"
                                 >
-                                    <MapPin className="text-blue-500 shrink-0 mt-1" size={18} />
-                                    <div className="flex-1">
-                                        <p className="font-medium text-gray-900">{location.name}</p>
-                                        {location.city && (
-                                            <p className="text-sm text-gray-500">{location.city}</p>
-                                        )}
+                                    <div className="mt-0.5 min-w-5">
+                                        <MapPin className="w-5 h-5 text-gray-400" />
+                                    </div>
+                                    <div className="ml-3 flex-1">
+                                        <p className="text-sm font-medium text-gray-800 line-clamp-1">{suggestion.main_text}</p>
+                                        <p className="text-xs text-gray-500 mt-1 line-clamp-2">{suggestion.secondary_text}</p>
                                     </div>
                                 </button>
                             ))}
+                            {!isLoadingSuggestions && suggestions.length === 0 && (
+                                <div className="py-8 text-center">
+                                    <p className="text-sm text-gray-500">No locations found for "{query}"</p>
+                                </div>
+                            )}
                         </div>
                     ) : (
-                        <div className="text-center py-8">
-                            <p className="text-gray-500">No locations found</p>
-                        </div>
+                        /* Recent Searches */
+                        recentSearches.length > 0 && (
+                            <div className="border-t pt-4">
+                                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 px-2">
+                                    Recent Searches
+                                </p>
+                                <div className="space-y-1">
+                                    {recentSearches.map((search) => (
+                                        <button
+                                            key={`recent-${search.place_id}`}
+                                            onClick={() => handleSuggestionClick(search)}
+                                            className="flex items-center w-full text-left py-3 hover:bg-gray-50 rounded px-2 -mx-2 transition-colors"
+                                        >
+                                            <Clock className="w-5 h-5 text-gray-400 shrink-0" />
+                                            <div className="ml-3 flex-1 overflow-hidden">
+                                                <p className="text-sm font-medium text-gray-700 truncate">{search.main_text}</p>
+                                                <p className="text-xs text-gray-500 truncate">{search.secondary_text}</p>
+                                            </div>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )
                     )}
                 </div>
             </div>

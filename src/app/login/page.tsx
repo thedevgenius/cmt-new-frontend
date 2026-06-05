@@ -150,7 +150,7 @@ export default function LoginPage() {
 		inputRefs.current[focusIndex]?.focus();
 	};
 
-	const onOtpSubmit = (e: React.FormEvent) => {
+	const onOtpSubmit = (e: React.BaseSyntheticEvent) => {
 		e.preventDefault();
 		const fullOtp = otpValues.join("");
 
