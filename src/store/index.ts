@@ -11,7 +11,8 @@ import {
 } from "redux-persist";
 import storage from "./storage";
 import authReducer from "./features/auth/authSlice"; // Or wherever your authSlice is
-import locationReducer from "./features/location/locationSlice"
+import locationReducer from "./features/location/locationSlice";
+import categoryReducer from "./features/category/categorySlice";
 import { injectStore } from "@/lib/axios"; // <-- 1. Import injectStore
 
 const authPersistConfig = {
@@ -26,9 +27,18 @@ const locationPersistConfig = {
     whitelist: ['currentLocation', 'recentSearches'], // Persist both current location and recents
 };
 
+const categoryPersistConfig = {
+    key: 'search',
+    storage,
+    // CRITICAL: We ONLY want to persist the recent searches. 
+    // We do NOT want to persist 'isLoading' or old 'results'.
+    whitelist: ['recentSearches'],
+};
+
 const rootReducer = combineReducers({
     auth: persistReducer(authPersistConfig, authReducer),
     location: persistReducer(locationPersistConfig, locationReducer),
+    category: persistReducer(categoryPersistConfig, categoryReducer),
 });
 
 export const store = configureStore({

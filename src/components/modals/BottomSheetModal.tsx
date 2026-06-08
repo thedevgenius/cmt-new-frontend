@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useCallback } from "react";
+import { useEffect, useRef } from "react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import { X } from "lucide-react";
 
@@ -13,11 +13,20 @@ interface BottomSheetModalProps {
 }
 
 export default function BottomSheetModal({ isOpen, onClose, children, preventCloseOnOverlayClick, bg }: BottomSheetModalProps) {
+
+    // 1. Create a ref to always hold the latest version of onClose
+    const onCloseRef = useRef(onClose);
+
+    // 2. Update the ref whenever onClose changes, without triggering history effects
+    useEffect(() => {
+        onCloseRef.current = onClose;
+    }, [onClose]);
+
     // Handle ESC key press
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.key === "Escape") {
-                onClose();
+                onCloseRef.current(); // Use the ref here
             }
         };
 
@@ -25,13 +34,13 @@ export default function BottomSheetModal({ isOpen, onClose, children, preventClo
             window.addEventListener("keydown", handleKeyDown);
         }
         return () => window.removeEventListener("keydown", handleKeyDown);
-    }, [isOpen, onClose]);
+    }, [isOpen]); // <-- Removed onClose from dependencies
 
     // Handle Mobile Back Button integration
     // useEffect(() => {
     //     const handlePopState = () => {
     //         if (isOpen) {
-    //             onClose();
+    //             onCloseRef.current(); // Use the ref here
     //         }
     //     };
 
@@ -48,7 +57,7 @@ export default function BottomSheetModal({ isOpen, onClose, children, preventClo
     //             window.history.back();
     //         }
     //     };
-    // }, [isOpen, onClose]);
+    // }, [isOpen]); // <-- Removed onClose from dependencies. Now this ONLY runs when the modal opens/closes!
 
     // Animation variants for that premium spring feel
     const modalVariants: Variants = {
@@ -56,7 +65,7 @@ export default function BottomSheetModal({ isOpen, onClose, children, preventClo
         visible: {
             y: 0,
             opacity: 1,
-            transition: { type: "spring", damping: 25, stiffness: 200 }
+            transition: { type: "spring", damping: 27, stiffness: 200 }
         },
         exit: {
             y: "100%",
@@ -75,9 +84,9 @@ export default function BottomSheetModal({ isOpen, onClose, children, preventClo
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.3 }}
-                        onClick={() => {
+                        onTap={() => {
                             if (!preventCloseOnOverlayClick) {
-                                onClose();
+                                onClose(); // Normal onClose is fine to use directly in JSX
                             }
                         }}
                         className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm"
@@ -93,7 +102,7 @@ export default function BottomSheetModal({ isOpen, onClose, children, preventClo
                             animate="visible"
                             exit="exit"
                             // pointer-events-auto is crucial here because the wrapper is pointer-events-none
-                            className={`relative w-full md:max-w-lg ${bg} rounded-t-4xl md:rounded-4xl shadow-2xl pointer-events-auto flex flex-col max-h-[90vh]`}
+                            className={`relative w-full md:max-w-lg ${bg} rounded-t-2xl md:rounded-xl shadow-2xl pointer-events-auto flex flex-col min-h-[60dvh] max-h-[90vh]`}
                         >
 
                             {/* Floating Close Button (On Backdrop) */}
@@ -104,11 +113,6 @@ export default function BottomSheetModal({ isOpen, onClose, children, preventClo
                             >
                                 <X size={20} strokeWidth={2.5} />
                             </button>
-
-                            {/* Optional: Mobile drag indicator pill */}
-                            <div className="w-full flex justify-center pt-3 pb-1 md:hidden">
-                                <div className="w-12 h-1.5 bg-gray-300 dark:bg-zinc-700 rounded-full" />
-                            </div>
 
                             {/* Scrollable Inner Content */}
                             <div className="overflow-y-auto">

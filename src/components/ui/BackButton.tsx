@@ -38,8 +38,8 @@ export default function BackButton({
 
     return (
         <button onClick={handleClick} className={className} {...rest}>
-            {showIcon && <ArrowLeft size={20} className="inline mr-2" />}
-            {children || "Back"}
+            {showIcon && <ArrowLeft size={20} className="inline" />}
+            {/* {children || "Back"} */}
         </button>
     );
 }

@@ -61,6 +61,7 @@ export const fetchLocationByCoords = createAsyncThunk(
     async ({ lat, lng }: { lat: number; lng: number }, { rejectWithValue }) => {
         try {
             const geocodeData = await locationApi.getReverseGeocode(lat, lng);
+            console.log(geocodeData);
             return {
                 lat,
                 lng,
@@ -129,6 +130,7 @@ const locationSlice = createSlice({
             .addCase(fetchLocationByCoords.fulfilled, (state, action) => {
                 state.isLocating = false;
                 state.currentLocation = action.payload;
+                
             })
             .addCase(fetchLocationByCoords.rejected, (state, action) => {
                 state.isLocating = false;

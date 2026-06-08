@@ -14,7 +14,7 @@ export default function Home() {
 	const { currentLocation } = useAppSelector((state) => state.location);
 	return (
 		<div className="p-10">
-			<div className="flex gap-2">
+			<div className="flex gap-2 flex-wrap items-center">
 				Home Page
 				{
 					isAuthenticated
@@ -25,7 +25,8 @@ export default function Home() {
 				
 				<AuthButton href="/profile">Profile</AuthButton>
 
-				<LocationButton>{currentLocation?.display_name || "Select Location"}</LocationButton>
+				<LocationButton className="bg-gray-200 p-2">{currentLocation?.display_name || "Select Location"} </LocationButton>
+				<Link href="/search">Search</Link>
 			</div>
 		</div>
 	);
