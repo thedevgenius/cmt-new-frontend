@@ -7,8 +7,7 @@ export interface City {
 export interface LocationDetails {
     lat: number;
     lng: number;
-    display_name: string;
-    postal_code: string;
+    landmark: string;
     city: City;
 }
 

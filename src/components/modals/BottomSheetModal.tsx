@@ -102,7 +102,7 @@ export default function BottomSheetModal({ isOpen, onClose, children, preventClo
                             animate="visible"
                             exit="exit"
                             // pointer-events-auto is crucial here because the wrapper is pointer-events-none
-                            className={`relative w-full md:max-w-lg ${bg} rounded-t-2xl md:rounded-xl shadow-2xl pointer-events-auto flex flex-col min-h-[60dvh] max-h-[90vh]`}
+                            className={`relative w-full md:max-w-lg ${bg} rounded-t-2xl md:rounded-3xl shadow-2xl pointer-events-auto flex flex-col min-h-[60dvh] max-h-[90vh]`}
                         >
 
                             {/* Floating Close Button (On Backdrop) */}

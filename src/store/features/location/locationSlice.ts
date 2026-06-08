@@ -46,8 +46,7 @@ export const fetchLocationByPlaceId = createAsyncThunk(
             return {
                 lat: coordsData.lat,
                 lng: coordsData.lng,
-                display_name: suggestion.main_text,
-                postal_code: coordsData.postal_code,
+                landmark: suggestion.main_text,
                 city: coordsData.city
             } as LocationDetails;
         } catch (err) {
@@ -65,8 +64,7 @@ export const fetchLocationByCoords = createAsyncThunk(
             return {
                 lat,
                 lng,
-                display_name: geocodeData.display_name,
-                postal_code: geocodeData.postal_code,
+                landmark: geocodeData.landmark || "Current Location",
                 city: geocodeData.city
             } as LocationDetails;
         } catch (err) {
