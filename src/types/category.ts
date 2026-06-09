@@ -16,3 +16,14 @@ export interface CategorySearchResponse {
     previous: string | null;
     results: Category[];
 }
+
+
+export interface CategoryNode {
+    id: number;
+    name: string;
+    slug: string;
+    children?: CategoryNode[]; // Optional because deeply nested items have no children
+}
+
+// Keep the lightweight type for recent searches
+export type RecentCategory = Pick<CategoryNode, 'id' | 'name' | 'slug'>;

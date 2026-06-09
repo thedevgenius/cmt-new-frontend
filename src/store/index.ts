@@ -13,6 +13,7 @@ import storage from "./storage";
 import authReducer from "./features/auth/authSlice"; // Or wherever your authSlice is
 import locationReducer from "./features/location/locationSlice";
 import categoryReducer from "./features/category/categorySlice";
+import categorySearchReducer from "./features/category/categorySearchSlice"; // <-- Import the new search slice
 import { injectStore } from "@/lib/axios"; // <-- 1. Import injectStore
 
 const authPersistConfig = {
@@ -39,6 +40,7 @@ const rootReducer = combineReducers({
     auth: persistReducer(authPersistConfig, authReducer),
     location: persistReducer(locationPersistConfig, locationReducer),
     category: persistReducer(categoryPersistConfig, categoryReducer),
+    categorySearch: categorySearchReducer, // <-- Add the new search slice
 });
 
 export const store = configureStore({
