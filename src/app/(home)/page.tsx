@@ -7,6 +7,7 @@ import { logout } from "@/store/features/auth/authSlice";
 import { useAuth } from "@/hooks/useAuth";
 import { AuthButton } from "@/components/shared/AuthButton";
 import LocationButton from "@/components/location/LocationButton";
+import ImageUpload from "@/components/ui/ImageUpload";
 
 export default function Home() {
 	const dispatch = useAppDispatch();
@@ -37,6 +38,10 @@ export default function Home() {
                 
                 <Link href={`${currentLocation?.city?.slug || "kolkata"}/${landmarkSlug}/hotels`}>Test Category link</Link>
 			</div>
+            
+            <div className="mt-10">
+                <ImageUpload />
+            </div>
 		</div>
 	);
 }
