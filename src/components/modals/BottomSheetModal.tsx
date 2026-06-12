@@ -58,6 +58,7 @@ export default function BottomSheetModal({ isOpen, onClose, children, preventClo
     //         }
     //     };
     // }, [isOpen]); // <-- Removed onClose from dependencies. Now this ONLY runs when the modal opens/closes!
+    
 
     // Animation variants for that premium spring feel
     const modalVariants: Variants = {
